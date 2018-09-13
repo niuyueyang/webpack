@@ -1,4 +1,4 @@
-# webpack@3.0.0
+# webpack@4.1.8
 
 注意与fis3打包区分,另外注意extract-text-webpack-plugin与webpack对应，安装npm inatall extract-text-webpack-plugin@next --save，webpack3.0.0版。
 
