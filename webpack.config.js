@@ -1,12 +1,20 @@
 const path=require('path');
-const ExtractTextPlugin=require('extract-text-webpack-plugin')
+const ExtractTextPlugin=require('extract-text-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 module.exports={
 	//入口文件
-	entry:'./main.js',
+	//entry:'./main.js',
+//	entry:{
+//		game:'./game.js',
+//		index:'./main.js'
+//	},
+	entry: './vueTs/main.ts',
 	output:{
 		//将所有文件输出到bundle.js里面
-		filename:'bundle.js',
-		path:path.resolve(__dirname,'./dist'),
+		//filename:'bundle.js',
+		filename:'output.js',
+		path:path.resolve(__dirname,'vueTs'),
+		publicPath:'/assests/',
 		//publicPath:'http://sop.ydtcloud.com/pc/',//输出文件URL
 		
 	},
@@ -16,10 +24,11 @@ module.exports={
 			//test,include,exclude可以为数组，只要满足其中一个条件，就可以被命中
 			{
 				test:/\.css$/,
-				loaders:ExtractTextPlugin.extract({
-					//转换.css文件需要使用的Loader
-					use:['css-loader']
-				})
+//				loaders:ExtractTextPlugin.extract({
+//					//转换.css文件需要使用的Loader
+//					use:['style-loader','css-loader','postcss-loader']
+//				}),
+				use:['style-loader','css-loader','postcss-loader']
 				//将css引入js文件中
 //				use:['style-loader',{
 //					loader:'css-loader',
@@ -32,6 +41,52 @@ module.exports={
 //				
 				
 			},
+			
+			//js  es6=>es5
+			{
+				test:/\.js$/,
+				include:path.resolve(__dirname,'js'),
+				exclude:path.resolve(__dirname,'node_modules'),
+				use:['babel-loader']
+			},
+			
+			//ts【单纯编译ts文件】
+			{
+				test:/\.ts$/,
+				loader:'awesome-typescript-loader'
+			},
+			//scss
+			{
+				test:/\.scss/,
+				use:['style-loader','css-loader','sass-loader']
+			},
+			//react与typeScript结合【.tsx】
+//			{
+//				test:/\.tsx?$/,
+//				loader:'awesome-typescript-loader'
+//			},
+			//react【.jsx】
+//			{
+//				test:/\.jsx?$/,
+//				loader:'jsx-loader'
+//			},
+			//vue，与jsx-loader互斥，所以将上面的注销
+			{
+				test:/\.vue$/,
+				use:['vue-loader']
+			},
+			//vue与ts结合,与reactTs文件夹冲突
+//			{
+//				test:/\.ts$/,
+//				loader:'ts-loader',
+//				include:path.resolve(__dirname,'vueTs'),
+//				exclude:/node_modules/,
+//				options:{
+//					//让tsc将vue当成一个Typescript模块去处理，以解决module not found问题，tsc本身不会处理.vue结尾的文件
+//					appendTsSuffixTo:[/\.vue$/]
+//				}
+//			},
+
 //			{
 //				//对待非文本采用file-loader
 //				test:/\.(gif|png|jpg|jpe?g|eot|woff|ttf|svg|pdf)$/,
@@ -40,6 +95,9 @@ module.exports={
 			
 			
 		]
+	},
+	resolve:{
+		extensions:['.ts','.js','.tsx','.jsx','.vue','.json']
 	},
 //	resolve:{
 //		alias:{
@@ -90,7 +148,8 @@ module.exports={
 	plugins:[
 		new ExtractTextPlugin('css/[name].min.css', {
 		    allChunks: false
-		})
+		}),
+		new VueLoaderPlugin()
 	],
 	target:'web',//web,node,async-node,websorker,electron-main,electron-renderer,如果改为node,则nodeJS里面的代码风格将被保留，如require(...)不会被打包，默认web
 	devtool:'source-map',//配置为source-map方便调试，默认为false
