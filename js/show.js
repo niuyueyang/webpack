@@ -4,7 +4,7 @@ import Tool from './tool.js';
 Tool.prints();
 $("#app").text('Hello webpack');
 $("#app").on('click',function(){
-	alert(1);
+	alert(2);
 });
 //prints();
 

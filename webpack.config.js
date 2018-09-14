@@ -1,6 +1,13 @@
 const path=require('path');
-const ExtractTextPlugin=require('extract-text-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const ExtractTextPlugin=require('extract-text-webpack-plugin');//分离css
+const VueLoaderPlugin = require('vue-loader/lib/plugin');//编译vue
+const {webplugIn}=require('web-webpack-plugin');
+const serviceworker=require("serviceworker-webpack-plugin");//serviceworker【废除】
+const OfflinePlugin = require('offline-plugin');//serviceworker【只限于本地】
+var ImageminPlugin = require('imagemin-webpack-plugin').default;//压缩图片【未实现】
+var SpritesmithPlugin = require('webpack-spritesmith');//图片精灵
+var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');//压缩css
+
 module.exports={
 	//入口文件
 	//entry:'./main.js',
@@ -8,13 +15,13 @@ module.exports={
 //		game:'./game.js',
 //		index:'./main.js'
 //	},
-	entry: './vueTs/main.ts',
+	entry: './file.js',
 	output:{
 		//将所有文件输出到bundle.js里面
 		//filename:'bundle.js',
 		filename:'output.js',
-		path:path.resolve(__dirname,'vueTs'),
-		publicPath:'/assests/',
+		path:path.resolve(__dirname,'file'),
+//		publicPath:'/assests/',
 		//publicPath:'http://sop.ydtcloud.com/pc/',//输出文件URL
 		
 	},
@@ -24,11 +31,11 @@ module.exports={
 			//test,include,exclude可以为数组，只要满足其中一个条件，就可以被命中
 			{
 				test:/\.css$/,
-//				loaders:ExtractTextPlugin.extract({
-//					//转换.css文件需要使用的Loader
-//					use:['style-loader','css-loader','postcss-loader']
-//				}),
-				use:['style-loader','css-loader','postcss-loader']
+				loaders:ExtractTextPlugin.extract({
+					//转换.css文件需要使用的Loader
+					use:['css-loader']//压缩css代码
+				}),
+//				use:['style-loader','css-loader','postcss-loader']
 				//将css引入js文件中
 //				use:['style-loader',{
 //					loader:'css-loader',
@@ -51,10 +58,10 @@ module.exports={
 			},
 			
 			//ts【单纯编译ts文件】
-			{
-				test:/\.ts$/,
-				loader:'awesome-typescript-loader'
-			},
+//			{
+//				test:/\.ts$/,
+//				loader:'awesome-typescript-loader'
+//			},
 			//scss
 			{
 				test:/\.scss/,
@@ -86,14 +93,25 @@ module.exports={
 //					appendTsSuffixTo:[/\.vue$/]
 //				}
 //			},
-
 //			{
 //				//对待非文本采用file-loader
 //				test:/\.(gif|png|jpg|jpe?g|eot|woff|ttf|svg|pdf)$/,
 //				use:['file-loader']
-//			}
+//			}，
 			
-			
+//			图片替换base64
+			{
+				test:/\.(gif|png|jpg|jpe?g|eot|woff|ttf|svg|pdf)$/,
+				use:[{
+					loader:'url-loader',
+					options:{
+						//200kB以下使用url-loader
+						limit:1024*200,
+						//否则采用file-loader
+						fallback:'file-loader'
+					}
+				}]
+			}
 		]
 	},
 	resolve:{
@@ -146,10 +164,71 @@ module.exports={
 	},
 	//扩展
 	plugins:[
-		new ExtractTextPlugin('css/[name].min.css', {
+		new ExtractTextPlugin('css/[name].css', {
 		    allChunks: false
 		}),
-		new VueLoaderPlugin()
+		new VueLoaderPlugin(),
+		new OptimizeCssAssetsPlugin(), // 创建一个压缩CSS文件的插件
+
+		//图片精灵
+//		new SpritesmithPlugin({
+//          // 目标小图标
+//          src: {
+//              cwd:  './file/ico',
+//              glob: '*.png'
+//          },
+//          // 输出雪碧图文件及样式文件
+//          target: {
+//              image: './file/ico/sprite.png',
+//              css: './file/css/sprite.css'
+//          },
+//          // 样式文件中调用雪碧图地址写法
+//          apiOptions: {
+//              cssImageRef: '../ico/sprite.png'
+//          },
+//          spritesmithOptions: {
+//              algorithm: 'top-down'
+//          }
+//      }),
+
+//		new ImageminPlugin({
+//	      disable: process.env.NODE_ENV !== 'production', // Disable during development
+//	      pngquant: {
+//	        quality: '95-100'
+//	      }
+//	    }),
+//		new serviceworker({
+//			//自定义sw.js所在路径
+//			//serviceworker会将文件列表注入生成的sw.js中
+//			entry:'./sw.js',
+//		}),
+		//serviceworker相关配置，只限在本地测试，未达到上线标准
+//		new OfflinePlugin({
+//			  responseStrategy: 'cache-first', // 缓存优先
+//	          AppCache: false,                 // 不启用appCache
+//	          safeToUseOptionalCaches: true,   // Removes warning for about `additional` section usage
+//	          autoUpdate: true,                // 自动更新
+//	          caches: {                        // webpack打包后需要换的文件正则匹配
+//	            main: [
+//	              '**/*.js',
+//	              '**/*.css',
+//	              /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+//	              /\.(woff2?|eot|ttf|otf)(\?.*)?$/
+//	              ],
+//	            additional: [
+//	              ':externals:'
+//	            ]
+//	          },
+//	          externals: [],                    // 设置外部链接，例如配置http://hello.com/getuser，那么在请求这个接口的时候就会进行接口缓存
+//	          excludes: ['**/.*', '**/*.map', '**/*.gz', '**/manifest-last.json'], // 需要过滤的文件
+//	          ServiceWorker: {
+//	            output: 'sw.js',       // 输出目录
+//	            publicPath: 'serviceworker/',    // sw.js 加载路径
+//	            scope: 'serviceworker/',                     // 作用域（此处有坑）
+//	            minify: true,                   // 开启压缩
+//	            events: true                    // 当sw状态改变时候发射对应事件
+//	          }
+//		})
 	],
 	target:'web',//web,node,async-node,websorker,electron-main,electron-renderer,如果改为node,则nodeJS里面的代码风格将被保留，如require(...)不会被打包，默认web
 	devtool:'source-map',//配置为source-map方便调试，默认为false

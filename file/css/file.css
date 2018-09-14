@@ -1,0 +1,34 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/*.imgs{
+	width: 100px;
+	height: 100px;
+	background-image: url(../img/fj.jpg);
+	background-repeat: no-repeat;
+	background-size:cover;
+}*/
+.one{
+	width: 10px;
+	height: 10px;
+	background-image: url(../ico/one.png);
+	background-repeat: no-repeat;
+	background-size:cover;
+}
+.two{
+	width: 10px;
+	height: 10px;
+	background-image: url(../ico/two.png);
+	background-repeat: no-repeat;
+	background-size:cover;
+}
+.three{
+	width: 10px;
+	height: 10px;
+	background-image: url(../ico/logo.png);
+	background-repeat: no-repeat;
+	background-size:cover;
+}
