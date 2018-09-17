@@ -1,16 +1,20 @@
-��ע����fis3�������,node_modulesע�ⲻҪɾ����
+【注意与fis3打包区分,node_modules注意不要删除】
 
 
-��
+【
 
-1�������Զ������ʱ�����ȴ�Ŀ¼�ļ���������������webpack --watch��webpack-dev-server --hot��
+1）在做自动化打包时，首先打到目录文件，启动两个命令webpack --watch，webpack-dev-server --hot。
 
-2������dist�ļ������½�bundle.js����html�ļ������룬�����main.jsΪ��ڣ�����Ҫ�����ȫ����
-require��ʽ���롣
+2）先在dist文件夹下新建bundle.js并在html文件中引入，其次以main.js为入口，将需要打包的全部以
+require形式引入。
 
-3����show.js�ļ��У���Ϊ����jquery����Ҫimport $ ...ȫ�����룬���Ҷ��ڹ��ߺ���tool.js�У�
-���е����ݷŵ�һ�������У���export default��ʽ�������
+3）在show.js文件中，因为引入jquery，需要import $ ...全局引入，并且对于工具函数tool.js中，
+所有的内容放到一个对象中，以export default形式输出对象。
 
-4���������ܱ�֤��show.js�е������ĺ������ڵ���ʱ��Ȼ��import���룬��ʽimport Tool from './tool.js'��
-����ʱTool.prints();
-��
+4）这样才能保证在show.js中调用它的函数，在调用时依然以import引入，形式import Tool from './tool.js'，
+调用时Tool.prints();
+
+5)在html中加入<script src="http://localhost:81/webpack-dev-server.js"></script>保证浏览器自动刷新
+
+
+】
